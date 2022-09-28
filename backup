@@ -1,0 +1,4 @@
+
+        expected_quantity_after_future_credit = sum([request.distribution_center.warehouses[request.store_order_info.product_class].quantity_of_items,
+                                                     sum_order_info_quantity(request.distribution_center.pending_factory_orders[request.store_order_info.product_class]),
+                                                     -sum_order_info_quantity(request.distribution_center.pending_store_orders[request.store_order_info.product_class])])
