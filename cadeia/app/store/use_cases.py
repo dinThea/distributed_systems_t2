@@ -101,15 +101,16 @@ class DebitStoreUseCase:
                  sum_order_info_quantity(
                      request.store.pending_cd_orders[request.product_class])])
 
-            order = OrderInfo(
-                entity_id=request.store.store_id,
-                product_class=request.product_class,
-                quantity=request.product_class.value - expected_quantity_after_future_credit
-            )
-            self._request_credit_strategy.request_credit(
-                order_info=order
-            )
-            request.store.pending_cd_orders[ProductClasses.A].append(order)
+            if request.product_class.value > expected_quantity_after_future_credit:
+                order = OrderInfo(
+                    entity_id=request.store.store_id,
+                    product_class=request.product_class,
+                    quantity=request.product_class.value - expected_quantity_after_future_credit
+                )
+                self._request_credit_strategy.request_credit(
+                    order_info=order
+                )
+                request.store.pending_cd_orders[request.product_class].append(order)
         return DebitStoreResponse(
             success=success,
             store=request.store

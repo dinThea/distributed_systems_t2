@@ -1,4 +1,4 @@
-FROM python:3.9.6-buster
+FROM python:3.8.7
 
 COPY . /app
 WORKDIR /app
@@ -9,4 +9,4 @@ RUN ln -s /root/.poetry/bin/poetry /usr/local/bin/poetry
 
 RUN poetry install
 
-CMD ["poetry", "run", "/app/main.py"]
+CMD ["poetry", "run", "python3", "/app/main.py"]

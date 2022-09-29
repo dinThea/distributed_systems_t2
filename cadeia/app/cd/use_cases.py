@@ -56,7 +56,7 @@ class DistributionCenterReceiveCreditUseCase:
 
         request.distribution_center.warehouses[request.product_class].quantity_of_items = min(
             request.distribution_center.warehouses[request.product_class].quantity_of_items,
-            request.product_class.value
+            request.product_class.value * request.distribution_center.warehouse_multiplier
         )
 
         if len(request.distribution_center.pending_store_orders[request.product_class]) > 0:
@@ -72,12 +72,12 @@ class DistributionCenterReceiveCreditUseCase:
         request.distribution_center.warehouses[request.product_class].state = InventoryState.RED
 
         if request.distribution_center.warehouses[request.product_class].quantity_of_items > \
-                request.product_class.value * InventoryState.GREEN.value:
+                request.product_class.value * InventoryState.GREEN.value * request.distribution_center.warehouse_multiplier:
             request.distribution_center.warehouses[
                 request.product_class
             ].state = InventoryState.GREEN
         elif request.distribution_center.warehouses[request.product_class].quantity_of_items > \
-                request.product_class.value * InventoryState.YELLOW.value:
+                request.product_class.value * InventoryState.YELLOW.value * request.distribution_center.warehouse_multiplier:
             request.distribution_center.warehouses[
                 request.product_class
             ].state = InventoryState.YELLOW
@@ -118,7 +118,7 @@ class DebitDistributionCenterUseCase:
                 quantity=request.quantity_of_items
             ))
         elif request.distribution_center.warehouses[request.product_class].quantity_of_items < \
-                request.product_class.value:
+                request.product_class.value * request.distribution_center.warehouse_multiplier:
             expected_quantity_after_future_credit = sum(
                 [request.distribution_center.warehouses[request.product_class].quantity_of_items,
                     sum_order_info_quantity(
@@ -130,10 +130,9 @@ class DebitDistributionCenterUseCase:
                 ])
 
             order = OrderInfo(
-                entity_id=request.distribution_center.distribution_center_id,
-                product_class=request.product_class,
-                quantity=request.product_class.value - expected_quantity_after_future_credit
-            )
+                entity_id=request.distribution_center.distribution_center_id, product_class=request.product_class,
+                quantity=request.product_class.value * request.distribution_center.warehouse_multiplier -
+                expected_quantity_after_future_credit)
             self._request_credit_strategy.request_credit(
                 order_info=order
             )
@@ -148,12 +147,12 @@ class DebitDistributionCenterUseCase:
         request.distribution_center.warehouses[request.product_class].state = InventoryState.RED
 
         if request.distribution_center.warehouses[request.product_class].quantity_of_items > \
-                request.product_class.value * InventoryState.GREEN.value:
+                request.product_class.value * InventoryState.GREEN.value * request.distribution_center.warehouse_multiplier:
             request.distribution_center.warehouses[
                 request.product_class
             ].state = InventoryState.GREEN
         elif request.distribution_center.warehouses[request.product_class].quantity_of_items > \
-                request.product_class.value * InventoryState.YELLOW.value:
+                request.product_class.value * InventoryState.YELLOW.value * request.distribution_center.warehouse_multiplier:
             request.distribution_center.warehouses[
                 request.product_class
             ].state = InventoryState.YELLOW
@@ -172,10 +171,9 @@ class DebitDistributionCenterUseCase:
                 ])
 
             order = OrderInfo(
-                entity_id=request.distribution_center.distribution_center_id,
-                product_class=request.product_class,
-                quantity=request.product_class.value - expected_quantity_after_future_credit
-            )
+                entity_id=request.distribution_center.distribution_center_id, product_class=request.product_class,
+                quantity=request.product_class.value * request.distribution_center.warehouse_multiplier -
+                expected_quantity_after_future_credit)
             self._request_credit_strategy.request_credit(
                 order_info=order
             )

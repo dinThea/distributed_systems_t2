@@ -1,5 +1,7 @@
 """Defines the cd controller"""
+from logging import Logger
 from typing import Union
+from cadeia.adapters.solutions import Broker
 from cadeia.app.cd.requests import (
     CreditDistributionCenterRequest,
     DebitDistributionCenterRequest
@@ -16,7 +18,6 @@ from cadeia.domain.entities import (
     ProductClasses,
     ProductContainer
 )
-from cadeia.main.factories import Broker
 
 
 class CDController:
@@ -28,8 +29,10 @@ class CDController:
             cd_receive_credit_use_case: DistributionCenterReceiveCreditUseCase,
             cd_debit_use_case: DebitDistributionCenterUseCase,
             broker: Broker,
-            distribution_center: Union[DistributionCenter, str] = None
+            distribution_center: Union[DistributionCenter, str],
+            logger: Logger
     ):
+        self._logger = logger
         if isinstance(distribution_center, (str,)):
             self._distribution_center: DistributionCenter = DistributionCenter(
                 distribution_center_id=distribution_center,
@@ -63,8 +66,6 @@ class CDController:
         self._cd_receive_credit_use_case = cd_receive_credit_use_case
         self._cd_debit_use_case = cd_debit_use_case
         self._broker = broker
-        self._broker.subscribe(f"factory/{distribution_center.distribution_center_id}",  # type: ignore
-                               self._receive_callback)
 
     def _receive_callback(self, order_info: OrderInfo, purpose: str):
         """Callback to be passed to the broker to receive messages
@@ -86,12 +87,23 @@ class CDController:
         Args:
             order_info (OrderInfo): Information about the order
         """
+
         self._distribution_center = self._cd_receive_credit_use_case.execute(
             CreditDistributionCenterRequest(
                 distribution_center=self._distribution_center,
                 product_class=order_info.product_class,
                 quantity_of_items=order_info.quantity
             )).distribution_center
+
+        self._logger.info(
+            'cd %s received credit of %s:%s, now cd has %s items of %s remaining, state is %s',
+            self._distribution_center.distribution_center_id,
+            order_info.product_class.name,
+            str(order_info.quantity),
+            self._distribution_center.warehouses[order_info.product_class].quantity_of_items,
+            order_info.product_class.name,
+            self._distribution_center.warehouses[order_info.product_class].state.name
+        )
 
     def _receive_debit_request_callback(
         self,
@@ -103,6 +115,16 @@ class CDController:
             product_class (ProductClasses): Class of product to buy
             quantity (int): Quantity of product to receive
         """
+
+        self._logger.info(
+            'cd %s received debit order of %s:%s, cd has %s items of %s remaining, state is %s',
+            self._distribution_center.distribution_center_id,
+            order_info.product_class.name,
+            str(order_info.quantity),
+            self._distribution_center.warehouses[order_info.product_class].quantity_of_items,
+            order_info.product_class.name,
+            self._distribution_center.warehouses[order_info.product_class].state.name
+        )
         res = self._cd_debit_use_case.execute(DebitDistributionCenterRequest(
             distribution_center=self._distribution_center,
             product_class=order_info.product_class,
@@ -112,4 +134,7 @@ class CDController:
         self._distribution_center = res.distribution_center
 
     def start(self):
-        self._broker.start()
+        self._logger.info("cd subscribing to cd/%s", self._distribution_center.distribution_center_id)
+        self._broker.start_consuming(
+            "cd/#",
+            self._receive_callback)

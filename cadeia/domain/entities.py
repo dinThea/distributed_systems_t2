@@ -27,7 +27,6 @@ class Factory:
     """Defines an factory info
     """
     factory_id: str
-    produced_classes: List[ProductClasses]
 
 
 @dataclass
@@ -64,3 +63,4 @@ class DistributionCenter:
     warehouses: Dict[ProductClasses, ProductContainer]
     pending_store_orders: Dict[ProductClasses, List[OrderInfo]]
     pending_factory_orders: Dict[ProductClasses, List[OrderInfo]]
+    warehouse_multiplier: int = 5
