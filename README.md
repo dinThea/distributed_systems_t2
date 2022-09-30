@@ -35,3 +35,12 @@ Lucas Pereira 726561
     
     python3 main.py
 
+Para acessar o **hivemq** as credencias são: 
+
+export HIVEMQTT_USER="iago123"
+
+export HIVEMQTT_PASSWD="iago1234"
+
+export HIVEMQTT_HOST="ffd901cec6ad4b739f71918282c611b9.s2.eu.hivemq.cloud"
+
+export HIVEMQTT_PORT=8883
