@@ -9,4 +9,5 @@ RUN ln -s /root/.poetry/bin/poetry /usr/local/bin/poetry
 
 RUN poetry install
 
-CMD ["poetry", "run", "python3", "/app/main.py"]
+ENTRYPOINT ["poetry", "run", "python3", "/app/main.py"]
+CMD ["--f=1", "--s=1", "--cds=1", "--cl=1"]

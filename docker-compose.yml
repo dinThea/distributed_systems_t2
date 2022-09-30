@@ -1,0 +1,21 @@
+version: "3.8"
+services:
+  factory:
+    build: .
+    command: "--factories=4 --stores=0 --cds=0 --clients=0"
+    env_file:
+      - env.list
+    depends_on: [ cd ]
+
+  cd:
+    build: .
+    command: "--factories=0 --stores=0 --cds=4 --clients=0"
+    env_file:
+      - env.list
+    depends_on: [ client_and_store ]
+
+  client_and_store:
+    build: .
+    command: "--factories=0 --stores=2 --cds=0 --clients=2"
+    env_file:
+      - env.list
