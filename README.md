@@ -9,11 +9,11 @@ Lucas Pereira 726561
   ```bash
   docker built -t nome_da_image .
   
-  docker run nome_da_imagem -d
-  ```
+docker-compose up -d --scale factory=14 --scale client_and_store=10
+```
   Para ver os logs use o seguinte comando:
   ```bash
-    docker logs nome_do_container
+    docker-compose logs -f
   ```
 2. Caso opte por **não executar via docker** siga esse passo-a-passo:
   
@@ -38,8 +38,8 @@ Lucas Pereira 726561
 Para acessar o **hivemq** as credencias são: 
 
 ```bash
-export HIVEMQTT_USER="iago123"
-export HIVEMQTT_PASSWD="iago1234"
-export HIVEMQTT_HOST="ffd901cec6ad4b739f71918282c611b9.s2.eu.hivemq.cloud"
-export HIVEMQTT_PORT=8883
+HIVEMQTT_USER=iago123
+HIVEMQTT_PASSWD=iago1234
+HIVEMQTT_HOST=ffd901cec6ad4b739f71918282c611b9.s2.eu.hivemq.cloud
+HIVEMQTT_PORT=8883
 ```
