@@ -2,3 +2,7 @@
 # Nomes 
 Iago Barbosa 759027
 Lucas Pereira 726561
+
+# Como executar ?
+
+
